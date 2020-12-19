@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import cv2
+import numpy as np
 
 # sidebar
 st.sidebar.markdown(
@@ -26,30 +27,17 @@ neutral_weight = st.sidebar.slider("自然", 0, 100, mode_list[analytics_type]["
 sadness_weight = st.sidebar.slider("悲哀", 0, 100, mode_list[analytics_type]["sadness"])
 surprise_weight = st.sidebar.slider("驚愕", 0, 100, mode_list[analytics_type]["surprise"])
 
-
+weight_list = {
+    "anger": anger_weight,
+    "contempt": contempt_weight,
+    "disgust": disgust_weight,
+    "fear": fear_weight,
+    "happiness": happiness_weight,
+    "neutral": neutral_weight,
+    "sadness": sadness_weight,
+    "surprise": surprise_weight
+    }
 # main
-
-# cap = cv2.VideoCapture(0)
-# image_loc = st.empty()
-
-# while cap.isOpened():
-#     _, frame = cap.read()
-#     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-#     image_loc.image(frame, width=640)
-#     if cv2.waitKey() & 0xFF == ord("q"):
-#         break
-# cap.release()
-
-# data = {'additional_properties': {}, 'anger': 0.0, 'contempt': 0.0, 'disgust': 0.0, 'fear': 0.0, 'happiness': 1.0, 'neutral': 0.0, 'sadness': 0.0, 'surprise': 0.0}
-# del data["additional_properties"]
-
-# df = pd.DataFrame(data)
-
-# for _ in range(100):
-#     df.append(data)
-
-# st.line_chart(df)
-
 col1, col2 = st.beta_columns(2)
 isAnalytics = False
 
@@ -59,3 +47,31 @@ with col1:
 with col2:
   if st.button('採点終了'):
       isAnalytics = False
+
+# cap = cv2.VideoCapture(0)
+# image_loc = st.empty()
+
+# while cap.isOpened():
+#     _, frame = cap.read()
+#     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#     image_loc.image(frame, width=640)
+#     cv2.imwrite('data/lena_opencv_red.jpg', frame)
+#     if cv2.waitKey() & 0xFF == ord("q"):
+#         break
+# cap.release()
+
+label_index = ['anger', 'contempt', 'disgust', 'fear', 'happiness', 'neutral', 'sadness', 'surprise']
+data = {'additional_properties': {}, 'anger': 0.0, 'contempt': 0.0, 'disgust': 0.4, 'fear': 0.0, 'happiness': 1.0, 'neutral': 0.0, 'sadness': 0.0, 'surprise': 0.0}
+del data["additional_properties"]
+
+df = pd.DataFrame(columns=label_index)
+
+chart = st.empty()
+
+for i in range(100):
+    calc_data = list(map(lambda l: data[l]*weight_list[l], label_index))
+    calc_sum = sum(calc_data)
+    addRow = pd.DataFrame(list(map(lambda c: c / calc_sum if calc_sum else 0, calc_data)), index=data.keys()).T
+    df = df.append(addRow, ignore_index=True)
+
+    chart.line_chart(df)
