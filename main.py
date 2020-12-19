@@ -18,10 +18,10 @@ def main():
     from msrest.authentication import CognitiveServicesCredentials
     from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person
     # </snippet_imports>
-    # KEY = "f02503bf203a47ed95629b02c3e7f936"
+    
     #write KEY in seacret.py
     ENDPOINT = "https://yattinda.cognitiveservices.azure.com/"
-    IMAGE_BASE = "https://www.pakutaso.com/shared/img/thumb/MS251_imayaraduituyaru_TP_V.jpg"
+    IMAGE_BASE = "https://yattinda.blob.core.windows.net/test/test1.jpg"
 
     face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))
 
