@@ -4,11 +4,15 @@ import requests
 import cv2
 import numpy as np
 import datetime
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__, PublicAccess
+import os, uuid, sys
+
 
 # local
-# import seacret
+from seacret import KEY
 # from ditectemotion import ditectemotion
 # from upload import upload
+from uptoblob import uptoblob
 
 # sidebar
 st.sidebar.markdown(
@@ -50,26 +54,42 @@ col1, col2 = st.beta_columns(2)
 isAnalytics = False
 
 with col1:
-  if st.button('採点開始'):
-      isAnalytics = True
+    if st.button('採点開始'):
+        if not isAnalytics:
+            connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+            # Create the BlobServiceClient object which will be used to create a container client
+            blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+
+            # Create a unique name for the container
+            container_name = "faceimages"
+
+            # Create the container
+            container_client = blob_service_client.create_container(container_name, public_access="blob")
+
+        isAnalytics = True
+
 with col2:
-  if st.button('採点終了'):
-      isAnalytics = False
+    if st.button('採点終了'):
+        isAnalytics = False
 
 cap = cv2.VideoCapture(0)
 image_loc = st.empty()
 
+file_cnt = 0
 while cap.isOpened():
     _, frame = cap.read()
     view_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     view_frame = cv2.flip(view_frame, 1)
     image_loc.image(view_frame, width=640)
     if isAnalytics:
-      now = datetime.datetime.now()
-      time_stamp = f"{now.month}{now.day}{now.hour}{now.minute}{now.second}{now.microsecond}"
-      img_path = f'data/lena_opencv_red_{time_stamp}.jpg'
-      frame = cv2.flip(view_frame, 1)
-      cv2.imwrite(img_path, frame)
+        img_path = f'data/{file_cnt}.jpg'
+        frame = cv2.flip(view_frame, 1)
+        cv2.imwrite(img_path, frame)
+        uptoblob(container_name, img_path, file_cnt)
+
+        file_cnt += 1
+    else:
+        file_cnt = 0
     if cv2.waitKey() & 0xFF == ord("q"):
         break
 cap.release()
