@@ -43,6 +43,8 @@ weight_list = {
     "sadness": sadness_weight,
     "surprise": surprise_weight
     }
+
+
 # main
 col1, col2 = st.beta_columns(2)
 isAnalytics = False
@@ -59,13 +61,14 @@ image_loc = st.empty()
 
 while cap.isOpened():
     _, frame = cap.read()
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    frame = cv2.flip(frame, 1)
-    image_loc.image(frame, width=640)
+    view_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    view_frame = cv2.flip(view_frame, 1)
+    image_loc.image(view_frame, width=640)
     if isAnalytics:
       now = datetime.datetime.now()
       time_stamp = f"{now.month}{now.day}{now.hour}{now.minute}{now.second}{now.microsecond}"
       img_path = f'data/lena_opencv_red_{time_stamp}.jpg'
+      frame = cv2.flip(view_frame, 1)
       cv2.imwrite(img_path, frame)
     if cv2.waitKey() & 0xFF == ord("q"):
         break
