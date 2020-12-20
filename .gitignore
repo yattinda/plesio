@@ -1,3 +1,4 @@
 seacret.py
 *.jpg
 .python-version
+__pycache__

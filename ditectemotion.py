@@ -34,7 +34,7 @@ def ditectemotion(image_url):
 
 
     for face in detected_faces:
-        return face.face_attributes.emotion)
+        return face.face_attributes.emotion
 
     #return detected_faces
 

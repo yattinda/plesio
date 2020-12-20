@@ -3,6 +3,12 @@ import pandas as pd
 import requests
 import cv2
 import numpy as np
+import datetime
+
+# local
+# import seacret
+# from ditectemotion import ditectemotion
+# from upload import upload
 
 # sidebar
 st.sidebar.markdown(
@@ -48,18 +54,24 @@ with col2:
   if st.button('採点終了'):
       isAnalytics = False
 
-# cap = cv2.VideoCapture(0)
-# image_loc = st.empty()
+cap = cv2.VideoCapture(0)
+image_loc = st.empty()
 
-# while cap.isOpened():
-#     _, frame = cap.read()
-#     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-#     image_loc.image(frame, width=640)
-#     cv2.imwrite('data/lena_opencv_red.jpg', frame)
-#     if cv2.waitKey() & 0xFF == ord("q"):
-#         break
-# cap.release()
+while cap.isOpened():
+    _, frame = cap.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame = cv2.flip(frame, 1)
+    image_loc.image(frame, width=640)
+    if isAnalytics:
+      now = datetime.datetime.now()
+      time_stamp = f"{now.month}{now.day}{now.hour}{now.minute}{now.second}{now.microsecond}"
+      img_path = f'data/lena_opencv_red_{time_stamp}.jpg'
+      cv2.imwrite(img_path, frame)
+    if cv2.waitKey() & 0xFF == ord("q"):
+        break
+cap.release()
 
+# グラフ
 label_index = ['anger', 'contempt', 'disgust', 'fear', 'happiness', 'neutral', 'sadness', 'surprise']
 data = {'additional_properties': {}, 'anger': 0.0, 'contempt': 0.0, 'disgust': 0.4, 'fear': 0.0, 'happiness': 1.0, 'neutral': 0.0, 'sadness': 0.0, 'surprise': 0.0}
 del data["additional_properties"]
